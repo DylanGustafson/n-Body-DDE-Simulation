@@ -44,11 +44,18 @@ def calcAcc(tvals, uvals, t, u, mass):
     print(acc_matrix)
     return np.hstack((u[:,3:6],acc_matrix))
 
+<<<<<<< HEAD
+=======
+    return np.hstack((u[:][3:6],acc_matrix))
+>>>>>>> 0c782973cc7d11f789dc9d55c65a4db62f1cbd29
 
 #Runge Kutta Integrator
 def int_rk4(f, u_init, h, num, masses):
     master_array = np.zeros((num,len(start),len(start[0]))) # declare master array 
+<<<<<<< HEAD
     master_array[0] = start
+=======
+>>>>>>> 0c782973cc7d11f789dc9d55c65a4db62f1cbd29
     tvals = np.zeros(num)
 
     for i in range(num - 1):
