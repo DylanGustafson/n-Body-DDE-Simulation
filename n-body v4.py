@@ -65,7 +65,6 @@ def int_rk4(f, u_init, h, num, masses):
 # run simulation 
 (t, u_rk4)=int_rk4(calcAcc, start, h, num, masses)
 
-
 # clsss to give partilces name and postion for entire simultion 
 class Particles:
     def __init__(self, name, postion):
