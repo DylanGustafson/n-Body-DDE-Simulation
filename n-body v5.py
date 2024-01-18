@@ -13,12 +13,12 @@ softening = 0
 # array format: mass, x, y, z, x', y', z'
 
 start = np.array([
-    [5, 3, 1, 5, 61, 90],
-    [0, 0, 0, 0, 0, 0],
-    [4, 5, 5, 3, 6, 2]
+    [-10, -10, 10, 0, 0, 0],
+    [10, 10, 10, 10, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ], dtype=float)
 
-masses = np.array([250, 123, 200])
+masses = np.array([10, 10, 30])
 
 
 def calcAcc(tvals, uvals, t, u, mass):
