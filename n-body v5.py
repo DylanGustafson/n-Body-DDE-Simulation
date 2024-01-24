@@ -13,16 +13,16 @@ softening = 0
 # array format: mass, x, y, z, x', y', z'
 
 start = np.array([
-    [-10, -10, 10, 0, 0, 0],
-    [10, 10, 10, 10, 0, 0],
-    [0, 0, 0, 0, 0, 0]
+    [-1, 0, 0, 0, -10, 0],
+    [1, 0, 0, 0, 10, 0]
 ], dtype=float)
 
-masses = np.array([10, 10, 30])
+masses = np.array([250, 123])
 
-
+# The calcAcc function returns an array of the accelerations of each particle in the system
+# Note: each row coresponds to a particle and each column coresponds to x,y,z compenent of the acceleration
 def calcAcc(tvals, uvals, t, u, mass):
-    mass = masses
+    #mass = masses
 
     n_bodies = len(u)
     acc_matrix = np.zeros((n_bodies, 3))
@@ -46,8 +46,8 @@ def calcAcc(tvals, uvals, t, u, mass):
 
 #Runge Kutta Integrator
 def int_rk4(f, u_init, h, num, masses):
-    master_array = np.zeros((num,len(start),len(start[0]))) # declare master array 
-    master_array[0] = start
+    master_array = np.zeros((num,len(u_init),len(u_init[0]))) # declare master array 
+    master_array[0] = u_init
     tvals = np.zeros(num)
 
     for i in range(num - 1):
@@ -65,6 +65,7 @@ def int_rk4(f, u_init, h, num, masses):
         
     return (tvals, master_array)
 
+# center of mass function (used to center camera)
 def center_mass(t, u_rk4, masses):
     total_mass = np.sum(masses)
     center_masses = []
@@ -75,12 +76,49 @@ def center_mass(t, u_rk4, masses):
 
     return center_masses
 
+#Yoshida Integrator
+def int_yos(f, u_init, v0, h, num, masses):
+    master_array = np.zeros((num,len(u_init),len(u_init[0]))) # declare master array 
+    master_array[0] = u_init
+    tvals = np.zeros(num)
+    
+    #Coefficients from wikipedia
+    cr2 = 2 ** (1/3)
+    w0 = - cr2 / (2 - cr2)
+    w1 = 1 / (2 - cr2)
+    c1 = w1 / 2
+    c2 = (w0 + w1) / 2
+    
+    for i in range(num - 1):
+        t  = tvals[i]
+        u0 = master_array[i]
+        
+        u1 = u0 + h * c1 * v0 
+        v1 = v0 + h * w1 * f(tvals, master_array, t, u1, masses)
+        u2 = u1 + h * c2 * v1
+        v2 = v1 + h * w0 * f(tvals, master_array, t, u2, masses)
+        u3 = u2 + h * c2 * v2
+        v3 = v2 + h * w1 * f(tvals, master_array, t, u3, masses)
+        u4 = u3 + h * c1 * v3
+        v0 = v3
+        
+        tvals[i + 1] = t + h
+        master_array[i + 1] = u4
+        
+    return (tvals, master_array)
+
 # run simulation 
 (t, u_rk4)=int_rk4(calcAcc, start, h, num, masses)
 
+#(t, u_rk4)=int_yos(calcAcc, start[:,0:3], start[:,3:], h, num, masses)
+
+# function that will standarized the data for animation
+
+#def Standard_data
+
 # will use num varible to be the number of frames
 # number of particles will be length of mass list
-
+  
 num_particles = len(masses) 
 
 # creat figure and 3D plot
