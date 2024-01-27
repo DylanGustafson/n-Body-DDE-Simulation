@@ -2,11 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Line3D
 
 #Key simulation values
+#G = 6.67430e-11 # gravitational constant
 G = 2.8
-h = 0.002
-num = 100 # number of ittertioans to run 
+h = 0.001 # step size
+num = 200 # number of ittertioans to run 
 softening = 0
 
 # array for bodies in future will use some sort of data format (CSV) 
@@ -109,18 +111,18 @@ def int_yos(f, u_init, v0, h, num, masses):
     return (tvals, master_array)
 
 # run simulation 
-#(t, u_rk4)=int_rk4(calcAcc, start, h, num, masses)
+#(t, postion_array)=int_rk4(calcAcc, start, h, num, masses)
 
-(t, u_rk4)=int_yos(calcAcc, start[:,0:3], start[:,3:], h, num, masses)
+(t, postion_array)=int_yos(calcAcc, start[:,0:3], start[:,3:], h, num, masses)
 
 # function that will standarized the data for animation
 
-#def Standard_data
+
 
 # will use num varible to be the number of frames
 # number of particles will be length of mass list
   
-num_particles = len(masses) 
+num_particles = len(masses) # do not delete this line
 
 # creat figure and 3D plot
 fig = plt.figure()
@@ -129,19 +131,36 @@ ax = fig.add_subplot(111, projection='3d')
 # list to store lines for particles 
 lines = [ax.plot([], [], [], 'o')[0] for _ in range(num_particles)]
 
-# set limits for plot, just find the max for each axis for both postive and negtive
-ax.set_xlim([np.min(u_rk4[:,:,0]), np.max(u_rk4[:,:,0])])
-ax.set_ylim([np.min(u_rk4[:,:,1]), np.max(u_rk4[:,:,1])])
-ax.set_zlim([np.min(u_rk4[:,:,2]), np.max(u_rk4[:,:,2])])
+# list for trailing lines
+trails = [Line3D([], [], []) for _ in range(num_particles)]
+for trail in trails:
+    ax.add_line(trail)
 
-# ainmation update function
-def update(num, lines):
+
+# set limits for plot, just find the max for each axis for both postive and negtive
+ax.set_xlim([np.min(postion_array[:,:,0]), np.max(postion_array[:,:,0])])
+ax.set_ylim([np.min(postion_array[:,:,1]), np.max(postion_array[:,:,1])])
+ax.set_zlim([np.min(postion_array[:,:,2]), np.max(postion_array[:,:,2])])
+
+# animation update function
+def update(num, lines, trails):
+    # calculate center of mass
+    center_of_mass = np.average(postion_array[num], weights=masses, axis=0)
+
+    # set limits based on center of mass
+    max_distance = np.max(np.linalg.norm(postion_array[num] - center_of_mass, axis=1))
+    ax.set_xlim(center_of_mass[0] - max_distance, center_of_mass[0] + max_distance)
+    ax.set_ylim(center_of_mass[1] - max_distance, center_of_mass[1] + max_distance)
+    ax.set_zlim(center_of_mass[2] - max_distance, center_of_mass[2] + max_distance)
+
     for i in range(num_particles):
-        lines[i].set_data(u_rk4[:num, i, 0], u_rk4[:num, i, 1])
-        lines[i].set_3d_properties(u_rk4[:num, i, 2])
-    return lines
+        lines[i].set_data(postion_array[num, i, 0], postion_array[num, i, 1])
+        lines[i].set_3d_properties(postion_array[num, i, 2])
+        trails[i].set_data(postion_array[:num, i, 0], postion_array[:num, i, 1])
+        trails[i].set_3d_properties(postion_array[:num, i, 2])
+    return lines + trails
  
 # create animation
-ani = animation.FuncAnimation(fig, update, frames=num, fargs=(lines,), interval=100)
+ani = animation.FuncAnimation(fig, update, frames=num, fargs=(lines, trails), interval=100)
 
 plt.show()
