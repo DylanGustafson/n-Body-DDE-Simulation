@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 #Key simulation values
 G = 2.8
-h = 0.1
+h = 0.01
 num = 100 # number of ittertioans to run 
 softening = 0
 
@@ -13,7 +13,7 @@ softening = 0
 # array format: mass, x, y, z, x', y', z'
 
 start = np.array([
-    [-1, 0, 0, 0, -10, 0],
+    [-1, 0, 0, 4, -10, 0],
     [1, 0, 0, 0, 10, 0]
 ], dtype=float)
 
@@ -108,13 +108,13 @@ def int_yos(f, u_init, v0, h, num, masses):
     return (tvals, master_array)
 
 # run simulation 
-(t, u_rk4)=int_rk4(calcAcc, start, h, num, masses)
+#(t, u_rk4)=int_rk4(calcAcc, start, h, num, masses)
 
-#(t, u_rk4)=int_yos(calcAcc, start[:,0:3], start[:,3:], h, num, masses)
+(t, u_rk4)=int_yos(calcAcc, start[:,0:3], start[:,3:], h, num, masses)
 
 # function that will standarized the data for animation
 
-#def Standard_data
+
 
 # will use num varible to be the number of frames
 # number of particles will be length of mass list
