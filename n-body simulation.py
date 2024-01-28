@@ -1,26 +1,21 @@
+import pandas as pd 
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3D
 
-#Key simulation values
-G = 6.67430e-11 # gravitational constant
-#G = 2.8
-h = 0.01 # step size
-frames = 1000 # number of ittertioans to run 
-softening = 0
+# Read CSV
+data = pd.read_csv('C:/Users/micha/OneDrive/Documents/GitHub/n-Body-DDE-Simulation/simulation data/trial 1.csv')
 
-# array for bodies in future will use some sort of data format (CSV) 
-# array format: mass, x, y, z, x', y', z'
+G = float(data.iat[0, 0])
+h = float(data.iat[0, 1]) # step size
+frames = int(data.iat[0, 2]) # number of ittertioans to run
+softening = float(data.iat[0, 3])
 
-start = np.array([
-    [-0.97000436, 0.24308753, 0, 0.46620368, 0.43236573, 0],
-    [0.97000436, -0.24308753, 0, 0.46620368, 0.43236573, 0],
-    [0.0, 0.0, 0, -0.93240737, -0.86473146, 0]
-], dtype=float)
-
-masses = np.array([100, 10000, 100])
+column_len = len(data['masses'])# get number of particles in system
+start = data.iloc[0:column_len, 4:10].values.astype(float)
+masses = data['masses'].values.astype(float)
 
 # The calcAcc function returns an array of the accelerations of each particle in the system
 # Note: each row coresponds to a particle and each column coresponds to x,y,z compenent of the acceleration
@@ -96,24 +91,23 @@ Particles_list = []
 colors = ['red', 'green', 'blue', 'purple', 'orange', 'pink', 'cyan', 'magenta', 'lime', 'teal', 'lavender', 'brown', 'beige', 'maroon', 'mint', 'olive', 'coral', 'navy', ]
 
 # number of particles
-num_particles = len(masses)
+num_particles = column_len
 
 for i in range(num_particles):
     particle_postion = postion_array[:,i,0:3]
     particle_label = f'Particle_{i+1}' # particle name 
 
     # if more than 20 particles turn color off
-    if num_particles > 18:
+    if num_particles > 18: # if more than 18 particles turn color off 
         particle_color = 'off'
     else:
-        particle_color = colors[i % len(colors)] # if more than 20 particles will wrap around, can change the number of particles that means no color
+        particle_color = colors[i % len(colors)] # if more than 18 particles will wrap around
 
     new_particle = Particles(postion = particle_postion, label = particle_label, color = particle_color, tail = True)
     Particles_list.append(new_particle)
 
 
 # creat 3D plot 
-
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
