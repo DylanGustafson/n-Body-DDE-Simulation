@@ -41,6 +41,41 @@ def calcAcc(tvals, uvals, t, u, mass):
         
     return np.hstack((u[:,3:6],acc_matrix))
 
+#Runge Kutta Integrator
+def int_rk4(f, u_init, h, num):
+    tvals = np.zeros(num)
+    uvals = np.zeros((num, len(u_init)))
+    uvals[0] = u_init
+    
+    for i in range(num - 1):
+        t = tvals[i]
+        u = uvals[i]
+        
+        k1 = f(tvals, uvals, t, u)
+        k2 = f(tvals, uvals, t + h/2, u + k1 * h/2)
+        k3 = f(tvals, uvals, t + h/2, u + k2 * h/2)
+        k4 = f(tvals, uvals, t + h, u + k3 * h)
+        
+        tvals[i + 1] = t + h
+        uvals[i + 1] = u + h/6 * (k1 + 2*k2 + 2*k3 + k4)
+        
+    return (tvals, uvals)
+
+'''def Leap_frog(f, u_init, h, num, masses):
+    master_array = np.zeros((num, len(u_init), len(u_init[0])))  # declare master array 
+    master_array[0] = u_init
+    tvals = np.zeros(num)
+
+    # v(t + delt_t / 2) = v(t - delta_t / 2) + a(t) * delta_t
+    # x(t + delta_t) = x(t) + v(t + delta_t / 2) * delta_t
+    
+    # re-arranged to kick-drift-kick
+    # v(t + 1/2) = v(t) + a(t) * delta_t / 2 (kick)
+    vel_kick_half = u_init[i, : ,0:3] + f(tvals, master_array, t, u1, masses) * delta* 0.5
+    # x(t + 1) = x(t) + v(t + 1/2) * delta_t (drift)
+    post_drift = 
+    # x(t + 1) = v(t + 1/2) + a(t + 1) * delta_t / 2 (kick)
+    vel_kick_one = '''
 
 #Yoshida Integrator
 def int_yos(f, u_init, v0, h, num, masses):
@@ -75,6 +110,7 @@ def int_yos(f, u_init, v0, h, num, masses):
 
 # run simulation
 (t, postion_array) = int_yos(calcAcc, start[:,0:3], start[:,3:], h, frames, masses)
+#(t, postion_array) = int_rk4(calcAcc, start, h, frames, masses)
 
 # Particle class 
 class Particles:
