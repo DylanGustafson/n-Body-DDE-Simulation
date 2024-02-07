@@ -19,10 +19,10 @@ masses = data['masses'].values.astype(float)
 
 # The calcAcc function returns an array of the accelerations of each particle in the system
 # Note: each row coresponds to a particle and each column coresponds to x,y,z compenent of the acceleration
-def calcAcc(tvals, uvals, t, u, mass):
+def calcAcc(time_vals, initial_postion, current_time, position_and_velocity, mass):
     #mass = masses
 
-    n_bodies = len(u)
+    n_bodies = len(position_and_velocity)
     acc_matrix = np.zeros((n_bodies, 3))
     for i in range(n_bodies):
         acc_vec = np.zeros(3)
@@ -30,8 +30,8 @@ def calcAcc(tvals, uvals, t, u, mass):
             if i == j:
                 continue
 
-            i_position = u[i, 0:3]
-            j_position = u[j, 0:3]
+            i_position = position_and_velocity[i, 0:3]
+            j_position = position_and_velocity[j, 0:3]
             rij = i_position - j_position
 
             inv_r3 = (rij[0]**2 + rij[1]**2 + rij[2]**2)**(-3/2)
@@ -39,49 +39,34 @@ def calcAcc(tvals, uvals, t, u, mass):
 
         acc_matrix[i,:] = acc_vec
         
-    return np.hstack((u[:,3:6],acc_matrix))
+    return np.hstack((position_and_velocity[:,3:6],acc_matrix))
 
 #Runge Kutta Integrator
-def int_rk4(f, u_init, h, num):
-    tvals = np.zeros(num)
-    uvals = np.zeros((num, len(u_init)))
-    uvals[0] = u_init
-    
-    for i in range(num - 1):
-        t = tvals[i]
-        u = uvals[i]
-        
-        k1 = f(tvals, uvals, t, u)
-        k2 = f(tvals, uvals, t + h/2, u + k1 * h/2)
-        k3 = f(tvals, uvals, t + h/2, u + k2 * h/2)
-        k4 = f(tvals, uvals, t + h, u + k3 * h)
-        
-        tvals[i + 1] = t + h
-        uvals[i + 1] = u + h/6 * (k1 + 2*k2 + 2*k3 + k4)
-        
-    return (tvals, uvals)
-
-'''def Leap_frog(f, u_init, h, num, masses):
-    master_array = np.zeros((num, len(u_init), len(u_init[0])))  # declare master array 
+def int_rk4(f, u_init, h, frames, masses):
+    master_array = np.zeros((frames,len(u_init),len(u_init[0]))) # declare master array
     master_array[0] = u_init
-    tvals = np.zeros(num)
+    time_vals = np.zeros(frames)
 
-    # v(t + delt_t / 2) = v(t - delta_t / 2) + a(t) * delta_t
-    # x(t + delta_t) = x(t) + v(t + delta_t / 2) * delta_t
-    
-    # re-arranged to kick-drift-kick
-    # v(t + 1/2) = v(t) + a(t) * delta_t / 2 (kick)
-    vel_kick_half = u_init[i, : ,0:3] + f(tvals, master_array, t, u1, masses) * delta* 0.5
-    # x(t + 1) = x(t) + v(t + 1/2) * delta_t (drift)
-    post_drift = 
-    # x(t + 1) = v(t + 1/2) + a(t + 1) * delta_t / 2 (kick)
-    vel_kick_one = '''
+    for i in range(frames - 1):
+        position_and_velocity = master_array[i]
+
+        current_time = time_vals[i]
+
+        k1 = f(time_vals, master_array, current_time, position_and_velocity, masses)
+        k2 = f(time_vals, master_array, current_time + h/2, position_and_velocity + k1 * h/2, masses)
+        k3 = f(time_vals, master_array, current_time + h/2, position_and_velocity + k2 * h/2, masses)
+        k4 = f(time_vals, master_array, current_time + h, position_and_velocity + k3 * h, masses)
+
+        time_vals[i + 1] = current_time + h
+        master_array[i + 1] = position_and_velocity + h/6 * (k1 + 2*k2 + 2*k3 + k4)
+
+    return (time_vals, master_array)
 
 #Yoshida Integrator
-def int_yos(f, u_init, v0, h, num, masses):
-    master_array = np.zeros((num,len(u_init),len(u_init[0]))) # declare master array 
+def int_yos(f, u_init, v0, h, frames, masses):
+    master_array = np.zeros((frames,len(u_init),len(u_init[0]))) # declare master array 
     master_array[0] = u_init
-    tvals = np.zeros(num)
+    time_vals = np.zeros(frames)
     
     #Coefficients from wikipedia
     cr2 = 2 ** (1/3)
@@ -90,27 +75,27 @@ def int_yos(f, u_init, v0, h, num, masses):
     c1 = w1 / 2
     c2 = (w0 + w1) / 2
     
-    for i in range(num - 1):
-        t  = tvals[i]
+    for i in range(frames - 1):
+        current_time  = time_vals[i]
         u0 = master_array[i]
         
         u1 = u0 + h * c1 * v0 
-        v1 = v0 + h * w1 * f(tvals, master_array, t, u1, masses)
+        v1 = v0 + h * w1 * f(time_vals, master_array, current_time, u1, masses)
         u2 = u1 + h * c2 * v1
-        v2 = v1 + h * w0 * f(tvals, master_array, t, u2, masses)
+        v2 = v1 + h * w0 * f(time_vals, master_array, current_time, u2, masses)
         u3 = u2 + h * c2 * v2
-        v3 = v2 + h * w1 * f(tvals, master_array, t, u3, masses)
+        v3 = v2 + h * w1 * f(time_vals, master_array, current_time, u3, masses)
         u4 = u3 + h * c1 * v3
         v0 = v3
         
-        tvals[i + 1] = t + h
+        time_vals[i + 1] = current_time + h
         master_array[i + 1] = u4
         
-    return (tvals, master_array)
+    return (time_vals, master_array)
 
 # run simulation
-(t, postion_array) = int_yos(calcAcc, start[:,0:3], start[:,3:], h, frames, masses)
-#(t, postion_array) = int_rk4(calcAcc, start, h, frames, masses)
+(current_time, postion_array) = int_yos(calcAcc, start[:,0:3], start[:,3:], h, frames, masses)
+#(current_time, postion_array) = int_rk4(calcAcc, start, h, frames, masses)
 
 # Particle class 
 class Particles:
@@ -155,17 +140,13 @@ tails = [Line3D([], [], [], color=particle.color) for particle in Particles_list
 for tail in tails:
     ax.add_line(tail)
 
-# Set plot limits
-ax.set_xlim([np.min(postion_array[:,:,0]), np.max(postion_array[:,:,0])])
-ax.set_ylim([np.min(postion_array[:,:,1]), np.max(postion_array[:,:,1])])
-ax.set_zlim([np.min(postion_array[:,:,2]), np.max(postion_array[:,:,2])])
-
 # animation function
 def update(frames, points, tails):
-    center_mass = np.average(postion_array[frames], weights=masses, axis=0)
+    current_positions = postion_array[frames, :, 0:3]
+    center_mass = np.average(current_positions, weights=masses, axis=0)
 
     # set graph limits around center of mass 
-    max_dist = np.max(np.linalg.norm(postion_array[frames] - center_mass, axis=1))
+    max_dist = np.max(np.linalg.norm(current_positions - center_mass, axis=1))
     ax.set_xlim(center_mass[0] - max_dist, center_mass[0] + max_dist)
     ax.set_ylim(center_mass[1] - max_dist, center_mass[1] + max_dist)
     ax.set_zlim(center_mass[2] - max_dist, center_mass[2] + max_dist)
