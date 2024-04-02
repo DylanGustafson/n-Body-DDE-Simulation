@@ -25,7 +25,7 @@ print(frames)
 #Given bodies i & j, along with the master array of values and last frame#, search backwards
 #through frames to find a point where the [ij distance] / [gravity speed] matches the [time delay]
 def get_delayed_vector(time_vals, master_array, current_time, i_position, j, last_frame):
-    g_speed = 30
+    g_speed = 100
 
     for frame_delay in range(last_frame + 1):
         time_delay = current_time - time_vals[last_frame - frame_delay]
