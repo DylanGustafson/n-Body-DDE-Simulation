@@ -221,6 +221,7 @@ class Particles:
         self.position = postion
         self.label = label
         self.color = color if color != 'off' else 'blue'
+        ax.set_box_aspect([1,1,1])
         self.tail = tail
 
 # empty list for particles 
@@ -277,8 +278,12 @@ def update(frames, points, tails):
 
     # update points and tails 
     for i in range(num_particles):
-        points[i].set_data_3d(position_array[frames, i, 0], position_array[frames, i, 1], position_array[frames, i, 2])
-        tails[i].set_data_3d(position_array[:frames, i, 0], position_array[:frames, i, 1], position_array[:frames, i, 2])
+        #points[i].set_data_3d(position_array[frames, i, 0], position_array[frames, i, 1], position_array[frames, i, 2])
+        #tails[i].set_data_3d(position_array[:frames, i, 0], position_array[:frames, i, 1], position_array[:frames, i, 2])
+        points[i].set_data(position_array[frames, i, 0], position_array[frames, i, 1])
+        tails[i].set_data(position_array[:frames, i, 0], position_array[:frames, i, 1])
+        points[i].set_3d_properties(position_array[frames, i, 2])
+        tails[i].set_3d_properties(position_array[:frames, i, 2])
 
     return tails
 
