@@ -1,3 +1,4 @@
+import sympy
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -67,14 +68,15 @@ def rk45(f, t0, y0, t_bound, tol):
         y_array = np.append(y_array, yk)
 
         # optimal step size scaller 
-        s = ( (tol) / 2 * abs(zk - yk) ) ** 0.25     # maybe using np.linalg.norm() might be more efficent 
+        s = (tol) / (2 * abs(zk - yk) ) ** 0.25     # maybe using np.linalg.norm() might be more efficent 
 
         # update t
         t = t + h # fixed
         
+        print(h)
     return x_array, y_array
 
-# Example usage
+'''# Example usage
 def func(t, y):
     k = 0.1 # added
     return -k * y # fixed
@@ -87,3 +89,5 @@ plt.ylabel('x(t)')
 plt.title('Solution of the ODE dx/dt = -kx using the RKF45 method')
 plt.grid(True)
 plt.show()
+'''
+

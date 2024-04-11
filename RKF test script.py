@@ -115,5 +115,3 @@ plt.ylabel('x(t)')
 plt.title('Solution of the ODE dx/dt = -kx using the RKF45 method')
 plt.grid(True)
 plt.show()
-
-

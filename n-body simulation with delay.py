@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3D
 
 # Read CSV
-data = read_csv('.\\trial 1.csv')
+data = read_csv("C:/Users/micha/OneDrive/Documents/GitHub/n-Body-DDE-Simulation/simulation data/trial 1.csv")
 
 G = float(data.iat[0, 0])
 h = float(data.iat[0, 1]) # step size

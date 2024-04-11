@@ -62,10 +62,6 @@ def int_rk4(f, u_init, h, frames, masses):
 
     return (time_vals, master_array)
 
-
-
-
-
 def int_rkf(f, t0, y0, t_bound, tol, masses):
 
     # constants from John H. Mathews and Kurtis K. Fink 2004
